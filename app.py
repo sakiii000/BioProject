@@ -89,27 +89,31 @@ def send_email(to_email, sequence, result):
     msg['To'] = to_email
     msg['Subject'] = 'SNARE Protein Prediction Results'
 
-    body = f"""
-    Protein Sequence: {sequence}
+    body = f"""\
+Protein Sequence: {sequence}
 
-    Prediction Results:
-    - Prediction: {result['prediction']}
-    - Confidence: {result['confidence']*100:.1f}%
-    - SNARE Probability: {result['probabilities']['SNARE']*100:.1f}%
-    - Non-SNARE Probability: {result['probabilities']['Non-SNARE']*100:.1f}%
-    """
-    msg.attach(MIMEText(body, 'plain'))
+Prediction Results:
+- Prediction: {result['prediction']}
+- Confidence: {result['confidence'] * 100:.1f}%
+- SNARE Probability: {result['probabilities']['SNARE'] * 100:.1f}%
+- Non-SNARE Probability: {result['probabilities']['Non-SNARE'] * 100:.1f}%
+"""
+
+    # 指定編碼為 utf-8
+    text_part = MIMEText(body, 'plain', 'utf-8')
+    msg.attach(text_part)
 
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login('brian20040211@gmail.com', 'tpfg iwuy fybt dnjj')  # 請使用 App 密碼
+        server.login('brian20040211@gmail.com', 'tpfg iwuy fybt dnjj')  # 請用應用程式密碼
         server.send_message(msg)
         server.quit()
         return True
     except Exception as e:
-        st.error(f"Email Error: {str(e)}")
+        st.error(f"Email sending error: {str(e)}")
         return False
+
 
 # ========== Streamlit UI ==========
 st.title("🧬 SNARE Protein Predictor")
