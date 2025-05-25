@@ -123,7 +123,7 @@ st.markdown("""
     }
     .streamlit-container {
         background-color: #e8eaf6;
-        padding: 40px;
+        padding: 400px;
         border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         max-width: 700px;
