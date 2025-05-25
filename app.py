@@ -121,18 +121,6 @@ st.markdown("""
     .stApp {
         background-color: #c5cae9;
     }
-    .main {
-        background-color: #e8eaf6;
-        padding: 40px;  /* 原本是 300px，改成更合理的值 */
-        border-radius: 16px;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        margin: 40px auto;
-        max-width: 700px;
-    }
-    h2 {
-      margin-bottom: 20px;
-      color: #3f51b5;
-    }
     label, .stTextInput > label, .stTextArea > label {
         font-weight: bold;
         color: #303f9f;
@@ -166,11 +154,6 @@ st.markdown("""
 
 # ========== Streamlit 表單 UI ========== #
 with st.container():
-    #st.markdown("""
-    #    <div class="main">
-    #        <h2>Predict SNARE Proteins</h2>
-    #        <p>請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。</p>
-    #""", unsafe_allow_html=True)
     st.markdown("## Predict SNARE Proteins")
     st.markdown("請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。")
     email = st.text_input("📧 請輸入您的 Email")
@@ -187,16 +170,14 @@ with st.container():
                 cnn_model = load_cnn_model()
                 result = predict_sequence(sequence, esm_model, alphabet, cnn_model)
 
-            st.success("✅ 預測完成！")
+            st.success("預測完成！")
             st.write(f"**預測結果**: {result['prediction']}")
             st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
             st.write(f"**SNARE 機率**：{result['probabilities']['SNARE'] * 100:.1f}%")
             st.write(f"**Non-SNARE 機率**：{result['probabilities']['Non-SNARE'] * 100:.1f}%")
 
             if send_email(email, sequence, result):
-                st.success("📬 預測結果已成功寄出！")
+                st.success("預測結果已成功寄出！")
             else:
-                st.warning("❗ 郵件寄送失敗，請確認信箱或稍後再試。")
+                st.warning("郵件寄送失敗，請確認信箱或稍後再試。")
 
-    # 結尾的 </div> 放這裡
-    #st.markdown("</div>", unsafe_allow_html=True)
