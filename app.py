@@ -123,7 +123,7 @@ st.markdown("""
     }
     .main {
         background-color: #e8eaf6;
-        padding: 400px;  /* 原本是 300px，改成更合理的值 */
+        padding: 40px;  /* 原本是 300px，改成更合理的值 */
         border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         margin: 40px auto;
