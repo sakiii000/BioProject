@@ -115,7 +115,7 @@
       resultDiv.innerText = "預測中，請稍候...";
 
       try {
-        const response = await fetch("https://bioproject.onrender.com/predict", {
+        const response = await fetch("/predict", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
