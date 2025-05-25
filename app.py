@@ -116,33 +116,82 @@ Prediction Results:
 
 
 # ========== Streamlit UI ==========
-st.title("🧬 SNARE Protein Predictor")
+st.markdown("""
+    <style>
+    body {
+        background-color: #c5cae9;
+    }
+    .main {
+        background-color: #e8eaf6;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        text-align: center;
+        max-width: 700px;
+        margin: auto;
+        color: #1a237e;
+    }
+    h2 {
+        color: #3f51b5;
+    }
+    label, .stTextInput > label, .stTextArea > label {
+        font-weight: bold;
+        color: #303f9f;
+    }
+    .stTextArea textarea, .stTextInput input {
+        border-radius: 6px;
+        border: 1px solid #ccc;
+        padding: 8px;
+    }
+    .stButton button {
+        background: linear-gradient(135deg, #5c6bc0, #3f51b5);
+        color: white;
+        border-radius: 25px;
+        font-size: 16px;
+        padding: 10px;
+        border: none;
+        width: 100%;
+        transition: background 0.3s, transform 0.2s;
+    }
+    .stButton button:hover {
+        background: linear-gradient(135deg, #7986cb, #5c6bc0);
+    }
+    .stButton button:active {
+        transform: scale(0.97);
+    }
+    </style>
+""", unsafe_allow_html=True)
 
-st.markdown("請輸入蛋白質序列，系統將預測其是否為 SNARE 並將結果寄送至您的信箱。")
+# ========== Streamlit 表單 UI ========== #
+with st.container():
+    st.markdown('<div class="main">', unsafe_allow_html=True)
 
-sequence = st.text_area("🔢 輸入蛋白質序列（僅限 A-Z 氨基酸字母）", height=150)
-email = st.text_input("📧 輸入您的電子郵件")
+    st.markdown("## Predict SNARE Proteins")
+    st.markdown("請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。")
 
-if st.button("預測並寄送結果"):
-    sequence = re.sub(r'[^ACDEFGHIKLMNPQRSTVWY]', '', sequence.upper())
-    
-    if not sequence or not email:
-        st.warning("請輸入有效的序列與電子郵件")
-    else:
-        with st.spinner("模型運算中，請稍候..."):
-            esm_model, alphabet = load_esm_model()
-            cnn_model = load_cnn_model()
-            result = predict_sequence(sequence, esm_model, alphabet, cnn_model)
-        
-        st.success("✅ 預測完成！")
-        st.write(f"**預測結果**: {result['prediction']}")
-        st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
-        #st.write("**機率分布：**")
-        #st.json(result['probabilities'])
-        st.write(f"SNARE **機率：**{result['probabilities']['SNARE'] * 100:.1f}%")
-        st.write(f"Non-SNARE **機率：**{result['probabilities']['Non-SNARE'] * 100:.1f}%")
+    email = st.text_input("📧 請輸入您的 Email")
+    sequence = st.text_area("🔢 請輸入蛋白質序列（A-Z 氨基酸字母）", height=150)
 
-        if send_email(email, sequence, result):
-            st.success("📬 預測結果已成功寄出！")
+    if st.button("Submit"):
+        sequence = re.sub(r'[^ACDEFGHIKLMNPQRSTVWY]', '', sequence.upper())
+
+        if not sequence or not email:
+            st.warning("請輸入有效的序列與電子郵件")
         else:
-            st.warning("❗ 郵件寄送失敗，請確認信箱或稍後再試。")
+            with st.spinner("模型運算中，請稍候..."):
+                esm_model, alphabet = load_esm_model()
+                cnn_model = load_cnn_model()
+                result = predict_sequence(sequence, esm_model, alphabet, cnn_model)
+
+            st.success("✅ 預測完成！")
+            st.write(f"**預測結果**: {result['prediction']}")
+            st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
+            st.write(f"SNARE 機率：{result['probabilities']['SNARE'] * 100:.1f}%")
+            st.write(f"Non-SNARE 機率：{result['probabilities']['Non-SNARE'] * 100:.1f}%")
+
+            if send_email(email, sequence, result):
+                st.success("📬 預測結果已成功寄出！")
+            else:
+                st.warning("❗ 郵件寄送失敗，請確認信箱或稍後再試。")
+
+    st.markdown('</div>', unsafe_allow_html=True)
