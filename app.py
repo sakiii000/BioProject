@@ -51,7 +51,10 @@ except Exception as e:
 input_shape = (1, 480)  # ESM-2 特徵維度
 num_classes = 2  # SNARE/非SNARE
 cnn_model = CNN(input_shape, num_classes).to(device)
-cnn_model.load_state_dict(torch.load('best_cnn_model.pth'))
+# cnn_model.load_state_dict(torch.load('best_cnn_model.pth'))
+cnn_model.load_state_dict(torch.load('best_cnn_model.pth', map_location='cpu'))
+
+
 cnn_model.eval()
 
 def get_esm_embedding(sequence):
