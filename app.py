@@ -119,10 +119,7 @@ Prediction Results:
 st.markdown("""
     <style>
     .stApp {
-        background-color: #c5cae9;
-    }
-    h2 {
-        color: #3f51b5;
+        background-color: #e8eaf6;
     }
     label, .stTextInput > label, .stTextArea > label {
         font-weight: bold;
