@@ -2,24 +2,25 @@ import streamlit as st
 import torch
 import torch.nn as nn
 import esm
-import re
+import numpy as np
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
-import numpy as np
+import re
 
-# 初始化模型
+# 裝置設定
 device = torch.device('cpu')
 
+# CNN 模型
 class CNN(nn.Module):
     def __init__(self, input_shape, num_classes):
         super(CNN, self).__init__()
         self.conv1 = nn.Conv1d(input_shape[0], 64, kernel_size=3, padding=1)
         self.conv2 = nn.Conv1d(64, 128, kernel_size=3, padding=1)
         self.conv3 = nn.Conv1d(128, 256, kernel_size=3, padding=1)
+        self.flat_features = input_shape[1] * 256 // 8
         self.pool = nn.MaxPool1d(2)
         self.dropout = nn.Dropout(0.5)
-        self.flat_features = input_shape[1] * 256 // 8
         self.fc1 = nn.Linear(self.flat_features, 512)
         self.fc2 = nn.Linear(512, num_classes)
 
@@ -33,34 +34,45 @@ class CNN(nn.Module):
         return x
 
 # 載入 ESM 模型
-model, alphabet = esm.pretrained.esm2_t12_35M_UR50D()
-model = model.eval().to(device)
+@st.cache_resource
+def load_esm_model():
+    model, alphabet = esm.pretrained.esm2_t12_35M_UR50D()
+    model = model.eval().to(device)
+    return model, alphabet
 
-# 載入 CNN 模型
-input_shape = (1, 480)
-cnn_model = CNN(input_shape, 2).to(device)
-cnn_model.load_state_dict(torch.load('best_cnn_model.pth', map_location='cpu'))
-cnn_model.eval()
+# 載入訓練好的 CNN 模型
+@st.cache_resource
+def load_cnn_model():
+    model = CNN((1, 480), 2).to(device)
+    model.load_state_dict(torch.load("best_cnn_model.pth", map_location=device))
+    model.eval()
+    return model
 
-def get_esm_embedding(sequence):
+# 嵌入序列
+def get_esm_embedding(sequence, esm_model, alphabet):
     batch_converter = alphabet.get_batch_converter()
     _, _, batch_tokens = batch_converter([("protein", sequence)])
     batch_tokens = batch_tokens.to(device)
-    with torch.no_grad():
-        results = model(batch_tokens, repr_layers=[12])
-    embeddings = results["representations"][12]
-    embeddings = embeddings[0, 1:-1, :]
-    return embeddings.mean(dim=0).cpu().numpy()
 
-def predict_sequence(sequence):
-    embedding = get_esm_embedding(sequence)
+    with torch.no_grad():
+        results = esm_model(batch_tokens, repr_layers=[12])
+    embeddings = results["representations"][12]
+    embeddings = embeddings[0, 1:-1, :]  # 去除 CLS 和 EOS
+    mean_embedding = embeddings.mean(dim=0)
+    return mean_embedding.cpu().numpy()
+
+# 預測功能
+def predict_sequence(sequence, esm_model, alphabet, cnn_model):
+    embedding = get_esm_embedding(sequence, esm_model, alphabet)
     embedding = embedding.reshape(1, 1, -1)
     embedding = torch.FloatTensor(embedding).to(device)
+
     with torch.no_grad():
         outputs = cnn_model(embedding)
         probabilities = torch.softmax(outputs, dim=1)
         prediction = torch.argmax(outputs, dim=1)
         confidence = probabilities[0][prediction].item()
+
     return {
         'prediction': 'SNARE' if prediction.item() == 1 else 'Non-SNARE',
         'confidence': confidence,
@@ -70,11 +82,13 @@ def predict_sequence(sequence):
         }
     }
 
+# 寄送 Email
 def send_email(to_email, sequence, result):
     msg = MIMEMultipart()
     msg['From'] = 'brian20040211@gmail.com'
     msg['To'] = to_email
     msg['Subject'] = 'SNARE Protein Prediction Results'
+
     body = f"""
     Protein Sequence: {sequence}
 
@@ -85,38 +99,44 @@ def send_email(to_email, sequence, result):
     - Non-SNARE Probability: {result['probabilities']['Non-SNARE']*100:.1f}%
     """
     msg.attach(MIMEText(body, 'plain'))
+
     try:
         server = smtplib.SMTP('smtp.gmail.com', 587)
         server.starttls()
-        server.login('brian20040211@gmail.com', '你的應用密碼')  # 務必替換！
+        server.login('brian20040211@gmail.com', 'tpfg iwuy fybt dnjj')  # 請使用 App 密碼
         server.send_message(msg)
         server.quit()
         return True
     except Exception as e:
-        print(f"Error sending email: {str(e)}")
+        st.error(f"Email Error: {str(e)}")
         return False
 
-# Streamlit 介面
-st.title("SNARE Protein Predictor")
-email = st.text_input("輸入你的 Email")
-sequence = st.text_area("輸入蛋白質序列（僅限 20 種氨基酸）", height=200)
+# ========== Streamlit UI ==========
+st.title("🧬 SNARE Protein Predictor")
 
-if st.button("開始預測"):
+st.markdown("請輸入蛋白質序列，系統將預測其是否為 SNARE 並將結果寄送至您的信箱。")
+
+sequence = st.text_area("🔢 輸入蛋白質序列（僅限 A-Z 氨基酸字母）", height=150)
+email = st.text_input("📧 輸入您的電子郵件")
+
+if st.button("預測並寄送結果"):
+    sequence = re.sub(r'[^ACDEFGHIKLMNPQRSTVWY]', '', sequence.upper())
+    
     if not sequence or not email:
-        st.error("請輸入蛋白質序列與 Email")
+        st.warning("請輸入有效的序列與電子郵件")
     else:
-        cleaned_seq = re.sub(r'[^ACDEFGHIKLMNPQRSTVWY]', '', sequence.upper())
-        if not cleaned_seq:
-            st.error("序列無效，請重新輸入")
-        else:
-            st.info("正在進行預測，請稍候...")
-            result = predict_sequence(cleaned_seq)
-            st.success(f"預測結果：{result['prediction']}")
-            st.write(f"信心分數：{result['confidence']*100:.1f}%")
-            st.write(f"SNARE 機率：{result['probabilities']['SNARE']*100:.1f}%")
-            st.write(f"Non-SNARE 機率：{result['probabilities']['Non-SNARE']*100:.1f}%")
+        with st.spinner("模型運算中，請稍候..."):
+            esm_model, alphabet = load_esm_model()
+            cnn_model = load_cnn_model()
+            result = predict_sequence(sequence, esm_model, alphabet, cnn_model)
+        
+        st.success("✅ 預測完成！")
+        st.write(f"**預測結果**: {result['prediction']}")
+        st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
+        st.write("**機率分布：**")
+        st.json(result['probabilities'])
 
-            if send_email(email, cleaned_seq, result):
-                st.success("結果已發送至您的 Email")
-            else:
-                st.warning("Email 發送失敗，請稍後再試")
+        if send_email(email, sequence, result):
+            st.success("📬 預測結果已成功寄出！")
+        else:
+            st.warning("❗ 郵件寄送失敗，請確認信箱或稍後再試。")
