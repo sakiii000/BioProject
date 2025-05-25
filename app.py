@@ -123,12 +123,13 @@ st.markdown("""
     }
     .main {
         background-color: #e8eaf6;
-        padding: 300px;
+        padding: 40px;  /* 原本是 300px，改成更合理的值 */
         border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         margin: 40px auto;
         max-width: 700px;
     }
+
     label, .stTextInput > label, .stTextArea > label {
         font-weight: bold;
         color: #303f9f;
