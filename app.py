@@ -139,8 +139,8 @@ if st.button("預測並寄送結果"):
         st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
         #st.write("**機率分布：**")
         #st.json(result['probabilities'])
-        st.write(f"** SNARE Probability: **{result['probabilities']['SNARE'] * 100:.1f}%")
-        st.write(f"**Non-SNARE Probability: **{result['probabilities']['Non-SNARE'] * 100:.1f}%")
+        st.write(f"SNARE **機率：**{result['probabilities']['SNARE'] * 100:.1f}%")
+        st.write(f"Non-SNARE **機率：**{result['probabilities']['Non-SNARE'] * 100:.1f}%")
 
         if send_email(email, sequence, result):
             st.success("📬 預測結果已成功寄出！")
