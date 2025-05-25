@@ -10,7 +10,7 @@ import re
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app)
+CORS(app, origins=["https://sakiii000.github.io"]) 
 # 載入模型和相關組件
 device = torch.device('cpu')
 
