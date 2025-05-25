@@ -118,7 +118,7 @@ Prediction Results:
 # ========== Streamlit UI ==========
 st.markdown("""
     <style>
-    body {
+    .stApp {
         background-color: #c5cae9;
     }
     .main {
@@ -161,6 +161,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 # ========== Streamlit 表單 UI ========== #
 with st.container():
