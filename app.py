@@ -121,13 +121,13 @@ st.markdown("""
     .stApp {
         background-color: #c5cae9;
     }
-    .main {
+    .streamlit-container {
         background-color: #e8eaf6;
-        padding: 400px;  /* 原本是 300px，改成更合理的值 */
+        padding: 40px;
         border-radius: 16px;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-        margin: 40px auto;
         max-width: 700px;
+        margin: 40px auto;
     }
 
     label, .stTextInput > label, .stTextArea > label {
@@ -163,7 +163,7 @@ st.markdown("""
 
 # ========== Streamlit 表單 UI ========== #
 with st.container():
-    st.markdown('<div class="main">', unsafe_allow_html=True)
+    st.markdown('<div class="streamlit-container">', unsafe_allow_html=True)
     st.markdown("## Predict SNARE Proteins")
     st.markdown("請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。")
 
