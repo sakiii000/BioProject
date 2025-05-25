@@ -121,6 +121,14 @@ st.markdown("""
     .stApp {
         background-color: #c5cae9;
     }
+    .main {
+        background-color: #e8eaf6;
+        padding: 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        margin: 40px auto;
+        max-width: 700px;
+    }
     label, .stTextInput > label, .stTextArea > label {
         font-weight: bold;
         color: #303f9f;
@@ -149,6 +157,7 @@ st.markdown("""
     }
     </style>
 """, unsafe_allow_html=True)
+
 
 
 # ========== Streamlit 表單 UI ========== #
