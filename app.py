@@ -135,7 +135,7 @@ if st.button("預測並寄送結果"):
             result = predict_sequence(sequence, esm_model, alphabet, cnn_model)
         
         st.success("✅ 預測完成！")
-        st.write(f"**預測結果**: {result['prediction']*100:.1f}%")
+        st.write(f"**預測結果**: {result['prediction']}")
         st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
         #st.write("**機率分布：**")
         #st.json(result['probabilities'])
