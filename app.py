@@ -190,8 +190,8 @@ with st.container():
             st.success("✅ 預測完成！")
             st.write(f"**預測結果**: {result['prediction']}")
             st.write(f"**信心指數**: {result['confidence']*100:.1f}%")
-            st.write(f"SNARE 機率：{result['probabilities']['SNARE'] * 100:.1f}%")
-            st.write(f"Non-SNARE 機率：{result['probabilities']['Non-SNARE'] * 100:.1f}%")
+            st.write(f"**SNARE 機率**：{result['probabilities']['SNARE'] * 100:.1f}%")
+            st.write(f"**Non-SNARE 機率**：{result['probabilities']['Non-SNARE'] * 100:.1f}%")
 
             if send_email(email, sequence, result):
                 st.success("📬 預測結果已成功寄出！")
