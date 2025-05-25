@@ -163,10 +163,12 @@ st.markdown("""
 
 # ========== Streamlit 表單 UI ========== #
 with st.container():
-    st.markdown('<div class="main">', unsafe_allow_html=True)
-
-    st.markdown("## Predict SNARE Proteins")
-    st.markdown("請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。")
+    st.markdown("""
+        <div class="main">
+        <h2>Predict SNARE Proteins</h2>
+        <p>請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。</p>
+        </div>
+    """, unsafe_allow_html=True)
 
     email = st.text_input("📧 請輸入您的 Email")
     sequence = st.text_area("🔢 請輸入蛋白質序列（A-Z 氨基酸字母）", height=150)
@@ -192,5 +194,3 @@ with st.container():
                 st.success("📬 預測結果已成功寄出！")
             else:
                 st.warning("❗ 郵件寄送失敗，請確認信箱或稍後再試。")
-
-    st.markdown('</div>', unsafe_allow_html=True)
