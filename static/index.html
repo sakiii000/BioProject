@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Predict SNARE Proteins</title>
+  <style>
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      background-color: #c5cae9;
+    }
+
+    form {
+      background-color: #e8eaf6;
+      padding: 30px;
+      border-radius: 12px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+      text-align: center;
+      width: 90%;
+      max-width: 600px;
+    }
+
+    h2 {
+      margin-bottom: 20px;
+      color: #3f51b5;
+    }
+
+    label {
+      display: block;
+      margin-top: 10px;
+      font-weight: bold;
+      color: #303f9f;
+    }
+
+    textarea {
+      width: 100%;
+      font-family: monospace;
+      white-space: nowrap;
+      overflow-x: auto;
+      resize: vertical;
+      padding: 8px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+      margin-top: 5px;
+    }
+
+    input[type="email"] {
+      width: 100%;
+      padding: 8px;
+      margin-top: 5px;
+      border-radius: 6px;
+      border: 1px solid #ccc;
+    }
+
+    input[type="submit"] {
+      width: 100%;
+      padding: 10px;
+      margin-top: 15px;
+      background: linear-gradient(135deg, #5c6bc0, #3f51b5);
+      color: white;
+      border: none;
+      border-radius: 25px;
+      font-size: 16px;
+      cursor: pointer;
+      transition: background 0.3s, transform 0.2s;
+    }
+
+    input[type="submit"]:hover {
+      background: linear-gradient(135deg, #7986cb, #5c6bc0);
+    }
+
+    input[type="submit"]:active {
+      transform: scale(0.97);
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: bold;
+      color: #1a237e;
+      word-wrap: break-word;
+    }
+  </style>
+
+</head>
+
+<body>
+
+  <form id="predict-form">
+    <h2>Predict SNARE Proteins</h2>
+    <label for="mail">Your Mail:</label><br>
+    <input type="email" id="mail" name="mail" required><br>
+
+    <label for="protein-sequence">請輸入蛋白質序列：</label><br>
+    <textarea id="protein-sequence" name="protein-sequence" rows="10" cols="80" placeholder="輸入蛋白質序列..."
+      required></textarea><br>
+
+    <input type="submit" value="Submit">
+    <div id="result"></div>
+  </form>
+
+  <script>
+    document.getElementById("predict-form").addEventListener("submit", async function (e) {
+      e.preventDefault(); // 阻止表單跳轉
+
+      const email = document.getElementById("mail").value;
+      const sequence = document.getElementById("protein-sequence").value;
+
+      const resultDiv = document.getElementById("result");
+      resultDiv.innerText = "預測中，請稍候...";
+
+      try {
+        const response = await fetch("/predict", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json"
+          },
+          body: JSON.stringify({
+            email: email,
+            sequence: sequence
+          })
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.error || "伺服器錯誤");
+        }
+
+        const data = await response.json();
+        let resultText = `預測結果：${data.prediction}\n`;
+        resultText += `信心分數：${(data.confidence * 100).toFixed(1)}%\n`;
+        resultText += `SNARE 機率：${(data.probabilities.SNARE * 100).toFixed(1)}%\n`;
+        resultText += `Non-SNARE 機率：${(data.probabilities['Non-SNARE'] * 100).toFixed(1)}%\n`;
+        resultText += `Email ${data.email_sent ? '已發送' : '發送失敗'}`;
+
+        resultDiv.innerText = resultText;
+      } catch (error) {
+        resultDiv.innerText = "發生錯誤：" + error.message;
+      }
+    });
+  </script>
+
+</body>
+
+</html>
