@@ -171,7 +171,7 @@ with st.container():
             <h2>Predict SNARE Proteins</h2>
             <p>請輸入蛋白質序列，我們將預測是否為 SNARE 並寄送至您的信箱。</p>
     """, unsafe_allow_html=True)
-
+    st.markdown('<div class="main">', unsafe_allow_html=True)
     email = st.text_input("📧 請輸入您的 Email")
     sequence = st.text_area("🔢 請輸入蛋白質序列（A-Z 氨基酸字母）", height=150)
 
