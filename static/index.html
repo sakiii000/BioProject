@@ -94,7 +94,7 @@
   <form id="predict-form">
     <h2>Predict SNARE Proteins</h2>
     <label for="mail">Your Mail:</label><br>
-    <input type="email" id="mail" name="mail" required><br>
+    <input type="email" id="mail" name="email" required><br>
 
     <label for="protein-sequence">請輸入蛋白質序列：</label><br>
     <textarea id="protein-sequence" name="protein-sequence" rows="10" cols="80" placeholder="輸入蛋白質序列..."
@@ -115,7 +115,7 @@
       resultDiv.innerText = "預測中，請稍候...";
 
       try {
-        const response = await fetch("/predict", {
+        const response = await fetch("https://bioproject.onrender.com/predict", {
           method: "POST",
           headers: {
             "Content-Type": "application/json"
