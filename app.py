@@ -129,10 +129,7 @@ st.markdown("""
         text-align: center;
         max-width: 700px;
         margin: auto;
-        color: #1a237e;
-    }
-    h2 {
-        color: #3f51b5;
+        color: #c5cae9;
     }
     label, .stTextInput > label, .stTextArea > label {
         font-weight: bold;
