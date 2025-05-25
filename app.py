@@ -10,7 +10,14 @@ import re
 from flask_cors import CORS
 
 app = Flask(__name__)
-CORS(app, origins=["https://sakiii000.github.io"]) 
+CORS(app)  # 暫時允許全部來源跨域，部署完成再鎖定 origin
+
+@app.after_request
+def after_request(response):
+    response.headers.add('Access-Control-Allow-Origin', '*')  # 或替換為 'https://sakiii000.github.io'
+    response.headers.add('Access-Control-Allow-Headers', 'Content-Type')
+    response.headers.add('Access-Control-Allow-Methods', 'POST, OPTIONS')
+    return response
 # 載入模型和相關組件
 device = torch.device('cpu')
 
