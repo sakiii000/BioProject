@@ -121,16 +121,6 @@ st.markdown("""
     .stApp {
         background-color: #c5cae9;
     }
-    .main {
-        background-color: #c5cae9;
-        padding: 30px;
-        border-radius: 12px;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-        text-align: center;
-        max-width: 700px;
-        margin: auto;
-        color: #1a237e;
-    }
     h2 {
         color: #3f51b5;
     }
