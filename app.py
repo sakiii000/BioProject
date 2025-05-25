@@ -7,9 +7,10 @@ import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 import re
+from flask_cors import CORS
 
 app = Flask(__name__)
-
+CORS(app)
 # 載入模型和相關組件
 device = torch.device('cpu')
 
